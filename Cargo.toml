@@ -1,0 +1,39 @@
+[package]
+name = "tilepad-plugin"
+version = "0.0.1"
+edition = "2024"
+
+[dependencies]
+# Plugin SDK 
+tilepad-plugin-sdk = "0.4.0"
+
+# Async runtime
+tokio = { version = "1.44.1", features = ["full"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_urlencoded = "0.7"
+
+# Twitch API for working with twitch
+twitch_api = { version = "0.7.2", features = [
+    "helix",
+    "eventsub",
+    "all",
+    "reqwest",
+] }
+
+# Websocket client for twitch event sub
+tokio-tungstenite = { version = "0.24.0", features = [
+    "rustls-tls-native-roots",
+] }
+
+# HTTP 
+reqwest = { version = "0.12.9", default-features = false, features = [
+    "charset",
+    "http2",
+    "rustls-tls",
+] }
+
+anyhow = "1.0.98"
+parking_lot = "0.12.4"

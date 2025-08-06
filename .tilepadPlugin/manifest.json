@@ -1,0 +1,95 @@
+{
+    "plugin": {
+        "id": "com.jacobtread.tilepad.twitch",
+        "name": "Twitch",
+        "version": "0.0.1",
+        "authors": [
+            "Jacobtread"
+        ],
+        "description": "TilePad Twitch plugin"
+    },
+    "category": {
+        "label": "Twitch"
+    },
+    "bin": {
+        "native": [
+            {
+                "os": "windows",
+                "arch": "x64",
+                "path": "bin/plugin-windows-x64.exe"
+            },
+            {
+                "os": "windows",
+                "arch": "x86",
+                "path": "bin/plugin-windows-x86.exe"
+            },
+            {
+                "os": "linux",
+                "arch": "x64",
+                "path": "bin/plugin-linux-x64"
+            },
+            {
+                "os": "linux",
+                "arch": "x86",
+                "path": "bin/plugin-linux-x86"
+            }
+        ]
+    },
+    "actions": {
+        "send_message": {
+            "label": "Send Message",
+            "description": "Send a preset message or command in chat",
+            "inspector": "ui/connect.html"
+        },
+        "clear_chat": {
+            "label": "Clear Chat",
+            "description": "Clear the chat history",
+            "inspector": "ui/connect.html"
+        },
+        "emote_only": {
+            "label": "Emote Only",
+            "description": "Toggle emote-only chat",
+            "inspector": "ui/connect.html"
+        },
+        "follower_only": {
+            "label": "Follower Only",
+            "description": "Toggle follower-only chat",
+            "inspector": "ui/connect.html"
+        },
+        "sub_only": {
+            "label": "Subscriber Only",
+            "description": "Toggle subscriber-only chat",
+            "inspector": "ui/connect.html"
+        },
+        "slow_mode": {
+            "label": "Slow Mode",
+            "description": "Toggle slow mode chat",
+            "inspector": "ui/connect.html"
+        },
+        "ad_break": {
+            "label": "Ad Break",
+            "description": "Run an advertisement for a preset length",
+            "inspector": "ui/connect.html"
+        },
+        "marker": {
+            "label": "Marker",
+            "description": "Add a stream marker to highlight key moments",
+            "inspector": "ui/connect.html"
+        },
+        "viewer_count": {
+            "label": "Viewer Count",
+            "description": "Display the number of viewers watching your live video",
+            "inspector": "ui/connect.html"
+        },
+        "create_clip": {
+            "label": "Create Clip",
+            "description": "Create a clip of the previous 90 seconds",
+            "inspector": "ui/connect.html"
+        },
+        "open_clip": {
+            "label": "Open Clip",
+            "description": "Open your channel's most recent clip",
+            "inspector": "ui/connect.html"
+        }
+    }
+}
