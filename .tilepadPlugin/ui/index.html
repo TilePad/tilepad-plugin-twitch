@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <style>
+        .container {
+            display: flex;
+            flex-flow: column;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            line-height: 1.25;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen--visible {
+            display: initial;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Connecting -->
+    <div class="screen screen--visible" id="connectingScreen">
+        <div class="container">
+            <h1>Connecting...</h1>
+        </div>
+    </div>
+
+    <!-- Authorize -->
+    <div class="screen" id="authorizeScreen">
+        <div class="container">
+            <h1>Authorize</h1>
+            <p>TilePad is not authorized to access your Twitch, press the button below to allow access</p>
+
+            <button class="tile-button" id="authorize">
+                Authorize
+            </button>
+        </div>
+    </div>
+
+    <!-- No Actions -->
+    <div class="screen" id="noActionsScreen">
+        <div class="container">
+            <h1>Ready to go</h1>
+            <p>Connected to Twitch! This action has no additional configuration.</p>
+        </div>
+    </div>
+
+    <!-- Send message -->
+    <div class="screen" id="sendMessageScreen">
+        <div class="container">
+            <div class="tile-item">
+                <label for="message" class="tile-label">Message</label>
+                <input id="message" type="text" class="tile-input" placeholder="My example message">
+                <p class="tile-description">Choose which message will be sent</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js" type="module"></script>
+</body>
+
+</html>
