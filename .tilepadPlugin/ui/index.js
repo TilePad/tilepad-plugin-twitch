@@ -50,6 +50,13 @@ tilepad.tile.onProperties((properties) => {
     messageIn.removeAttribute('disabled');
 })
 
+// 
+
+const logoutBtn = document.getElementById("logout")
+
+logoutBtn.onclick = () => {
+    tilepad.plugin.send({ type: "LOGOUT" })
+}
 
 // === Current State ===
 

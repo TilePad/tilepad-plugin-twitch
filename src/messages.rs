@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub enum InspectorMessageIn {
     GetState,
     OpenAuthUrl,
+    Logout,
 }
 
 /// Messages to the inspector

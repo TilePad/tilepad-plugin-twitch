@@ -5,7 +5,10 @@ use parking_lot::Mutex;
 use tilepad_plugin_sdk::Inspector;
 use twitch_api::{
     HelixClient,
-    helix::chat::{SendChatMessageBody, SendChatMessageRequest, SendChatMessageResponse},
+    helix::{
+        chat::{SendChatMessageBody, SendChatMessageRequest, SendChatMessageResponse},
+        moderation::{DeleteChatMessagesRequest, DeleteChatMessagesResponse},
+    },
     twitch_oauth2::{AccessToken, UserToken},
 };
 
@@ -37,6 +40,7 @@ impl State {
     pub fn set_logged_out(&self) {
         let state = &mut *self.access_state.lock();
         *state = AccessState::NotAuthenticate;
+        self.update_inspector();
     }
 
     pub fn update_inspector(&self) {
@@ -139,5 +143,22 @@ impl State {
         }
 
         Ok(())
+    }
+
+    pub async fn clear_chat(&self) -> anyhow::Result<DeleteChatMessagesResponse> {
+        // Obtain twitch access token
+        let token = self.get_user_token().context("not authenticated")?;
+
+        // Get broadcaster user ID
+        let user_id = token.user_id.clone();
+
+        // Create chat message request
+        let request = DeleteChatMessagesRequest::new(user_id.clone(), user_id);
+
+        // Send request and get response
+        let response: DeleteChatMessagesResponse =
+            self.helix_client.req_delete(request, &token).await?.data;
+
+        Ok(response)
     }
 }

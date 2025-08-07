@@ -2,6 +2,7 @@ use serde::Deserialize;
 
 pub enum Action {
     SendMessage(SendMessageProperties),
+    ClearChat,
 }
 
 impl Action {
@@ -11,6 +12,7 @@ impl Action {
     ) -> Option<Result<Action, serde_json::Error>> {
         Some(match action_id {
             "send_message" => serde_json::from_value(properties).map(Action::SendMessage),
+            "clear_chat" => Ok(Action::ClearChat),
             _ => return None,
         })
     }

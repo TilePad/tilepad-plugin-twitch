@@ -20,6 +20,8 @@ pub const TWITCH_CLIENT_ID: &ClientIdRef =
 pub const TWITCH_REQUIRED_SCOPES: &[Scope] = &[
     // Send chat messages
     Scope::UserWriteChat,
+    // Allow deleting messages
+    Scope::ModeratorManageChatMessages,
 ];
 
 /// Properties for the plugin itself
@@ -103,6 +105,10 @@ impl Plugin for ExamplePlugin {
 
                 _ = session.open_url(url.to_string());
             }
+            InspectorMessageIn::Logout => {
+                self.state.set_logged_out();
+                _ = session.set_properties(Properties { access: None });
+            }
         }
     }
 
@@ -136,6 +142,13 @@ impl Plugin for ExamplePlugin {
                     };
 
                     if let Err(err) = state.send_chat_message(&message).await {
+                        // handle err
+                    }
+                });
+            }
+            Action::ClearChat => {
+                spawn_local(async move {
+                    if let Err(err) = state.clear_chat().await {
                         // handle err
                     }
                 });
