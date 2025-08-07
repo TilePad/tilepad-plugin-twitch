@@ -153,6 +153,15 @@ impl Plugin for ExamplePlugin {
                     }
                 });
             }
+            Action::EmoteOnly => {}
+            Action::FollowerOnly => {}
+            Action::SubOnly => {}
+            Action::SlowMode => {}
+            Action::AdBreak => {}
+            Action::Marker => {}
+            Action::CreateClip => {}
+            Action::OpenClip => {}
+            Action::ViewerCount => {}
         }
     }
 

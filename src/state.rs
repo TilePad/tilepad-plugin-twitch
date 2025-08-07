@@ -7,6 +7,7 @@ use twitch_api::{
     HelixClient,
     helix::{
         chat::{SendChatMessageBody, SendChatMessageRequest, SendChatMessageResponse},
+        clips::{CreateClipRequest, CreatedClip},
         moderation::{DeleteChatMessagesRequest, DeleteChatMessagesResponse},
     },
     twitch_oauth2::{AccessToken, UserToken},
