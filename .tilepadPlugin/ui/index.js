@@ -43,11 +43,13 @@ messageIn.onchange = (event) => {
 
 messageIn.setAttribute('disabled', '')
 
-tilepad.tile.getProperties()
-    .then((properties) => {
-        messageIn.value = (properties.message ?? '');
-        messageIn.removeAttribute('disabled');
-    })
+tilepad.tile.onProperties((properties) => {
+    if (currentAction !== "send_message") return;
+
+    messageIn.value = (properties.message ?? '');
+    messageIn.removeAttribute('disabled');
+})
+
 
 // === Current State ===
 
@@ -90,6 +92,8 @@ tilepad.plugin.onMessage((data) => {
 });
 
 
+// Request the current properties
+tilepad.tile.requestProperties();
 
 // Request the current tile
 tilepad.tile.getTile()
