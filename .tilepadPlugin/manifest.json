@@ -9,7 +9,8 @@
         "description": "TilePad Twitch plugin"
     },
     "category": {
-        "label": "Twitch"
+        "label": "Twitch",
+        "icon": "images/twitch.svg"
     },
     "bin": {
         "native": [
