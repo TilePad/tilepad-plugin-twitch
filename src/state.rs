@@ -2,15 +2,17 @@ use std::cell::RefCell;
 
 use anyhow::Context;
 use parking_lot::Mutex;
+use serde::Serialize;
 use tilepad_plugin_sdk::Inspector;
 use twitch_api::{
     HelixClient,
     helix::{
+        EmptyBody, Request, RequestPost, Scope,
         chat::{SendChatMessageBody, SendChatMessageRequest, SendChatMessageResponse},
         clips::{CreateClipRequest, CreatedClip},
         moderation::{DeleteChatMessagesRequest, DeleteChatMessagesResponse},
     },
-    twitch_oauth2::{AccessToken, UserToken},
+    twitch_oauth2::{AccessToken, UserToken, Validator, validator},
 };
 
 use crate::messages::InspectorMessageOut;
@@ -162,4 +164,40 @@ impl State {
 
         Ok(response)
     }
+
+    pub async fn create_clip(&self) -> anyhow::Result<Vec<CreatedClip>> {
+        // Obtain twitch access token
+        let token = self.get_user_token().context("not authenticated")?;
+
+        // Get broadcaster user ID
+        let user_id = token.user_id.clone();
+
+        // Create chat message request
+        let request = CreateClipRequestFixed(CreateClipRequest::broadcaster_id(user_id));
+
+        // Send request and get response
+        let response: Vec<CreatedClip> = self
+            .helix_client
+            .req_post(request, EmptyBody, &token)
+            .await?
+            .data;
+
+        Ok(response)
+    }
+}
+
+/// Wrapper to correct the HTTP method type for the create clip endpoint
+#[derive(Serialize)]
+#[serde(transparent)]
+struct CreateClipRequestFixed<'a>(CreateClipRequest<'a>);
+
+impl Request for CreateClipRequestFixed<'_> {
+    type Response = Vec<CreatedClip>;
+
+    const PATH: &'static str = "clips";
+    const SCOPE: Validator = validator![Scope::ClipsEdit];
+}
+
+impl RequestPost for CreateClipRequestFixed<'_> {
+    type Body = EmptyBody;
 }

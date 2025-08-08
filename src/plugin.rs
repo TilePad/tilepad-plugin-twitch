@@ -159,7 +159,13 @@ impl Plugin for ExamplePlugin {
             Action::SlowMode => {}
             Action::AdBreak => {}
             Action::Marker => {}
-            Action::CreateClip => {}
+            Action::CreateClip => {
+                spawn_local(async move {
+                    if let Err(err) = state.create_clip().await {
+                        // handle err
+                    }
+                });
+            }
             Action::OpenClip => {}
             Action::ViewerCount => {}
         }
