@@ -141,22 +141,46 @@ impl Plugin for ExamplePlugin {
                         None => return,
                     };
 
-                    if let Err(err) = state.send_chat_message(&message).await {
-                        // handle err
+                    if let Err(error) = state.send_chat_message(&message).await {
+                        tracing::error!(?error, "failed to send chat message");
                     }
                 });
             }
             Action::ClearChat => {
                 spawn_local(async move {
-                    if let Err(err) = state.clear_chat().await {
-                        // handle err
+                    if let Err(error) = state.clear_chat().await {
+                        tracing::error!(?error, "failed to clear chat");
                     }
                 });
             }
-            Action::EmoteOnly => {}
-            Action::FollowerOnly => {}
-            Action::SubOnly => {}
-            Action::SlowMode => {}
+            Action::EmoteOnly => {
+                spawn_local(async move {
+                    if let Err(error) = state.toggle_emote_only().await {
+                        tracing::error!(?error, "failed to toggle emote only chat");
+                    }
+                });
+            }
+            Action::FollowerOnly => {
+                spawn_local(async move {
+                    if let Err(error) = state.toggle_follower_only().await {
+                        tracing::error!(?error, "failed to toggle follower only chat");
+                    }
+                });
+            }
+            Action::SubOnly => {
+                spawn_local(async move {
+                    if let Err(error) = state.toggle_sub_only().await {
+                        tracing::error!(?error, "failed to toggle sub only chat");
+                    }
+                });
+            }
+            Action::SlowMode => {
+                spawn_local(async move {
+                    if let Err(error) = state.toggle_slow_mode().await {
+                        tracing::error!(?error, "failed to toggle slow mode");
+                    }
+                });
+            }
             Action::AdBreak => {}
             Action::Marker => {}
             Action::CreateClip => {

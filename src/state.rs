@@ -8,9 +8,15 @@ use twitch_api::{
     HelixClient,
     helix::{
         EmptyBody, Request, RequestPost, Scope,
-        chat::{SendChatMessageBody, SendChatMessageRequest, SendChatMessageResponse},
+        chat::{
+            ChatSettings, GetChatSettingsRequest, SendChatMessageBody, SendChatMessageRequest,
+            SendChatMessageResponse, UpdateChatSettingsBody, UpdateChatSettingsRequest,
+        },
         clips::{CreateClipRequest, CreatedClip},
-        moderation::{DeleteChatMessagesRequest, DeleteChatMessagesResponse},
+        moderation::{
+            DeleteChatMessagesRequest, DeleteChatMessagesResponse, UpdateAutoModSettingsBody,
+            UpdateAutoModSettingsIndividual,
+        },
     },
     twitch_oauth2::{AccessToken, UserToken, Validator, validator},
 };
@@ -149,16 +155,9 @@ impl State {
     }
 
     pub async fn clear_chat(&self) -> anyhow::Result<DeleteChatMessagesResponse> {
-        // Obtain twitch access token
         let token = self.get_user_token().context("not authenticated")?;
-
-        // Get broadcaster user ID
         let user_id = token.user_id.clone();
-
-        // Create chat message request
         let request = DeleteChatMessagesRequest::new(user_id.clone(), user_id);
-
-        // Send request and get response
         let response: DeleteChatMessagesResponse =
             self.helix_client.req_delete(request, &token).await?.data;
 
@@ -166,16 +165,9 @@ impl State {
     }
 
     pub async fn create_clip(&self) -> anyhow::Result<Vec<CreatedClip>> {
-        // Obtain twitch access token
         let token = self.get_user_token().context("not authenticated")?;
-
-        // Get broadcaster user ID
         let user_id = token.user_id.clone();
-
-        // Create chat message request
         let request = CreateClipRequestFixed(CreateClipRequest::broadcaster_id(user_id));
-
-        // Send request and get response
         let response: Vec<CreatedClip> = self
             .helix_client
             .req_post(request, EmptyBody, &token)
@@ -183,6 +175,62 @@ impl State {
             .data;
 
         Ok(response)
+    }
+
+    pub async fn get_chat_settings(&self) -> anyhow::Result<ChatSettings> {
+        let token = self.get_user_token().context("not authenticated")?;
+        let user_id = token.user_id.clone();
+        let request = GetChatSettingsRequest::broadcaster_id(user_id.clone());
+        let response: ChatSettings = self.helix_client.req_get(request, &token).await?.data;
+        Ok(response)
+    }
+
+    pub async fn toggle_slow_mode(&self) -> anyhow::Result<()> {
+        let settings = self.get_chat_settings().await?;
+        let token = self.get_user_token().context("not authenticated")?;
+        let user_id = token.user_id.clone();
+        let request = UpdateChatSettingsRequest::new(user_id.clone(), user_id);
+        let mut body = UpdateChatSettingsBody::default();
+        body.slow_mode = Some(!settings.slow_mode);
+
+        _ = self.helix_client.req_patch(request, body, &token).await?;
+        Ok(())
+    }
+
+    pub async fn toggle_emote_only(&self) -> anyhow::Result<()> {
+        let settings = self.get_chat_settings().await?;
+        let token = self.get_user_token().context("not authenticated")?;
+        let user_id = token.user_id.clone();
+        let request = UpdateChatSettingsRequest::new(user_id.clone(), user_id);
+        let mut body = UpdateChatSettingsBody::default();
+        body.emote_mode = Some(!settings.emote_mode);
+
+        _ = self.helix_client.req_patch(request, body, &token).await?;
+        Ok(())
+    }
+
+    pub async fn toggle_follower_only(&self) -> anyhow::Result<()> {
+        let settings = self.get_chat_settings().await?;
+        let token = self.get_user_token().context("not authenticated")?;
+        let user_id = token.user_id.clone();
+        let request = UpdateChatSettingsRequest::new(user_id.clone(), user_id);
+        let mut body = UpdateChatSettingsBody::default();
+        body.follower_mode = Some(!settings.follower_mode);
+
+        _ = self.helix_client.req_patch(request, body, &token).await?;
+        Ok(())
+    }
+
+    pub async fn toggle_sub_only(&self) -> anyhow::Result<()> {
+        let settings = self.get_chat_settings().await?;
+        let token = self.get_user_token().context("not authenticated")?;
+        let user_id = token.user_id.clone();
+        let request = UpdateChatSettingsRequest::new(user_id.clone(), user_id);
+        let mut body = UpdateChatSettingsBody::default();
+        body.subscriber_mode = Some(!settings.subscriber_mode);
+
+        _ = self.helix_client.req_patch(request, body, &token).await?;
+        Ok(())
     }
 }
 
