@@ -8,7 +8,7 @@ pub enum Action {
     SubOnly,
     SlowMode,
     AdBreak,
-    Marker,
+    Marker(MarkerProperties),
     CreateClip,
     OpenClip,
     ViewerCount,
@@ -27,7 +27,7 @@ impl Action {
             "sub_only" => Ok(Action::SubOnly),
             "slow_mode" => Ok(Action::SlowMode),
             "ad_break" => Ok(Action::AdBreak),
-            "marker" => Ok(Action::Marker),
+            "marker" => serde_json::from_value(properties).map(Action::Marker),
             "create_clip" => Ok(Action::CreateClip),
             "open_clip" => Ok(Action::OpenClip),
             "viewer_count" => Ok(Action::ViewerCount),
@@ -39,4 +39,9 @@ impl Action {
 #[derive(Deserialize)]
 pub struct SendMessageProperties {
     pub message: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct MarkerProperties {
+    pub description: Option<String>,
 }

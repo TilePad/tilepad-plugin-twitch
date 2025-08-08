@@ -182,11 +182,20 @@ impl Plugin for ExamplePlugin {
                 });
             }
             Action::AdBreak => {}
-            Action::Marker => {}
+            Action::Marker(properties) => {
+                spawn_local(async move {
+                    if let Err(error) = state
+                        .create_marker(properties.description.unwrap_or_default())
+                        .await
+                    {
+                        tracing::error!(?error, "failed to create marker");
+                    }
+                });
+            }
             Action::CreateClip => {
                 spawn_local(async move {
-                    if let Err(err) = state.create_clip().await {
-                        // handle err
+                    if let Err(error) = state.create_clip().await {
+                        tracing::error!(?error, "failed to create clip");
                     }
                 });
             }

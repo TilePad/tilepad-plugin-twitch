@@ -17,6 +17,7 @@ use twitch_api::{
             DeleteChatMessagesRequest, DeleteChatMessagesResponse, UpdateAutoModSettingsBody,
             UpdateAutoModSettingsIndividual,
         },
+        streams::{CreateStreamMarkerBody, CreateStreamMarkerRequest, CreatedStreamMarker},
     },
     twitch_oauth2::{AccessToken, UserToken, Validator, validator},
 };
@@ -171,6 +172,20 @@ impl State {
         let response: Vec<CreatedClip> = self
             .helix_client
             .req_post(request, EmptyBody, &token)
+            .await?
+            .data;
+
+        Ok(response)
+    }
+
+    pub async fn create_marker(&self, description: String) -> anyhow::Result<CreatedStreamMarker> {
+        let token = self.get_user_token().context("not authenticated")?;
+        let user_id = token.user_id.clone();
+        let request = CreateStreamMarkerRequest::new();
+        let body = CreateStreamMarkerBody::new(user_id, description);
+        let response: CreatedStreamMarker = self
+            .helix_client
+            .req_post(request, body, &token)
             .await?
             .data;
 
