@@ -79,7 +79,7 @@
         "viewer_count": {
             "label": "Viewer Count",
             "description": "Display the number of viewers watching your live video",
-            "inspector": "ui/index.html"
+            "display": "displays/viewCount.display.html"
         },
         "create_clip": {
             "label": "Create Clip",

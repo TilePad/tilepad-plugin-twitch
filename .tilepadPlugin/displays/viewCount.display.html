@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        html,
+        body {
+            background: transparent !important;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-flow: column;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            padding: 20vh 20vw;
+            overflow: hidden;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #counter {
+            margin: 0;
+            white-space: nowrap;
+            line-height: 1.1;
+        }
+
+        .description {
+            font-size: 10vh;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <h1 id="counter"></h1>
+        <p class="description">Viewers</p>
+    </div>
+
+
+    <script src="viewCount.js" type="module"></script>
+</body>
+
+</html>

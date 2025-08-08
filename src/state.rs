@@ -1,9 +1,14 @@
-use std::cell::RefCell;
+use std::{
+    cell::{Cell, RefCell},
+    rc::Rc,
+    time::{Duration, Instant},
+};
 
 use anyhow::Context;
 use parking_lot::Mutex;
 use serde::Serialize;
-use tilepad_plugin_sdk::Inspector;
+use tilepad_plugin_sdk::{Display, Inspector, tracing};
+use tokio::time::sleep;
 use twitch_api::{
     HelixClient,
     helix::{
@@ -13,11 +18,11 @@ use twitch_api::{
             SendChatMessageResponse, UpdateChatSettingsBody, UpdateChatSettingsRequest,
         },
         clips::{CreateClipRequest, CreatedClip},
-        moderation::{
-            DeleteChatMessagesRequest, DeleteChatMessagesResponse, UpdateAutoModSettingsBody,
-            UpdateAutoModSettingsIndividual,
+        moderation::{DeleteChatMessagesRequest, DeleteChatMessagesResponse},
+        streams::{
+            CreateStreamMarkerBody, CreateStreamMarkerRequest, CreatedStreamMarker,
+            GetStreamsRequest,
         },
-        streams::{CreateStreamMarkerBody, CreateStreamMarkerRequest, CreatedStreamMarker},
     },
     twitch_oauth2::{AccessToken, UserToken, Validator, validator},
 };
@@ -40,6 +45,9 @@ pub struct State {
     helix_client: HelixClient<'static, reqwest::Client>,
     access_state: Mutex<AccessState>,
     inspector: RefCell<Option<Inspector>>,
+
+    view_displays: RefCell<Vec<ViewCountDisplay>>,
+    viewers: Cell<usize>,
 }
 
 impl State {
@@ -247,6 +255,49 @@ impl State {
         _ = self.helix_client.req_patch(request, body, &token).await?;
         Ok(())
     }
+
+    pub async fn get_view_count(&self) -> anyhow::Result<Option<usize>> {
+        let token = match self.get_user_token() {
+            Some(value) => value,
+            None => return Ok(None),
+        };
+        let user_id = token.user_id.clone();
+        let request = GetStreamsRequest::user_ids(vec![user_id]).first(1);
+
+        let response = self.helix_client.req_get(request, &token).await?.data;
+        let view_count = response.first().map(|stream| stream.viewer_count);
+        Ok(view_count)
+    }
+
+    // Returning the number of active ones
+    pub fn get_active_displays(&self) -> usize {
+        let now = Instant::now();
+        let displays = &mut *self.view_displays.borrow_mut();
+        displays.retain(|display| now.duration_since(display.last_alive) < Duration::from_secs(5));
+
+        displays.len()
+    }
+
+    pub fn current_view_count(&self) -> usize {
+        self.viewers.get()
+    }
+
+    pub fn push_active_display(&self, display: &Display) {
+        let displays = &mut *self.view_displays.borrow_mut();
+        let now = Instant::now();
+
+        if let Some(existing) = displays
+            .iter_mut()
+            .find(|other| other.display.ctx.eq(&display.ctx))
+        {
+            existing.last_alive = now;
+        } else {
+            displays.push(ViewCountDisplay {
+                display: display.clone(),
+                last_alive: now,
+            });
+        }
+    }
 }
 
 /// Wrapper to correct the HTTP method type for the create clip endpoint
@@ -263,4 +314,32 @@ impl Request for CreateClipRequestFixed<'_> {
 
 impl RequestPost for CreateClipRequestFixed<'_> {
     type Body = EmptyBody;
+}
+
+pub struct ViewCountDisplay {
+    display: Display,
+    last_alive: Instant,
+}
+
+pub async fn run_view_count_update(state: Rc<State>) {
+    loop {
+        let active = state.get_active_displays();
+
+        if active > 0 {
+            let view_count = match state.get_view_count().await {
+                Ok(value) => value,
+                Err(error) => {
+                    tracing::error!(?error, "failed to get view count");
+                    None
+                }
+            };
+
+            if let Some(view_count) = view_count {
+                state.viewers.replace(view_count);
+            }
+        }
+
+        // Update every 5 seconds
+        sleep(Duration::from_secs(5)).await;
+    }
 }

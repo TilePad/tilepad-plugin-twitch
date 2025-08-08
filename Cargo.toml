@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 # Plugin SDK 
-tilepad-plugin-sdk = "0.4.0"
+tilepad-plugin-sdk = "0.5.0"
 
 # Async runtime
 tokio = { version = "1.44.1", features = ["full"] }

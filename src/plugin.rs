@@ -1,4 +1,8 @@
-use crate::{action::Action, messages::InspectorMessageIn, state::State};
+use crate::{
+    action::Action,
+    messages::{DisplayMessageIn, DisplayMessageOut, InspectorMessageIn},
+    state::{State, run_view_count_update},
+};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 use tilepad_plugin_sdk::{
@@ -48,6 +52,10 @@ impl ExamplePlugin {
 }
 
 impl Plugin for ExamplePlugin {
+    fn on_registered(&mut self, _session: &PluginSessionHandle) {
+        spawn_local(run_view_count_update(self.state.clone()));
+    }
+
     fn on_properties(&mut self, _session: &PluginSessionHandle, properties: serde_json::Value) {
         let state = self.state.clone();
         let properties: Properties = match serde_json::from_value(properties) {
@@ -63,8 +71,9 @@ impl Plugin for ExamplePlugin {
         // Try and authenticate
         spawn_local(async move {
             if let Some(stored) = properties.access {
-                if let Err(err) = state.attempt_auth(stored.access_token).await {
+                if let Err(error) = state.attempt_auth(stored.access_token).await {
                     // TODO: If token is bad delete and force re-login
+                    tracing::error!(?error, "auth attempt failed");
                 }
             }
         });
@@ -108,6 +117,28 @@ impl Plugin for ExamplePlugin {
             InspectorMessageIn::Logout => {
                 self.state.set_logged_out();
                 _ = session.set_properties(Properties { access: None });
+            }
+        }
+    }
+
+    fn on_display_message(
+        &mut self,
+        session: &PluginSessionHandle,
+        display: tilepad_plugin_sdk::Display,
+        message: serde_json::Value,
+    ) {
+        let message: DisplayMessageIn = match serde_json::from_value(message) {
+            Ok(value) => value,
+            Err(_) => return,
+        };
+
+        match message {
+            DisplayMessageIn::GetViewCount => {
+                self.state.push_active_display(&display);
+
+                _ = display.send(DisplayMessageOut::ViewCount {
+                    count: self.state.current_view_count(),
+                });
             }
         }
     }
@@ -200,7 +231,9 @@ impl Plugin for ExamplePlugin {
                 });
             }
             Action::OpenClip => {}
-            Action::ViewerCount => {}
+            Action::ViewerCount => {
+                // No associated action (Maybe refresh manually when tapped?)
+            }
         }
     }
 
