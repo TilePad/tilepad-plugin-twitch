@@ -39,57 +39,68 @@
         "send_message": {
             "label": "Send Message",
             "description": "Send a preset message or command in chat",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/chat.svg"
         },
         "clear_chat": {
             "label": "Clear Chat",
             "description": "Clear the chat history",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/clear_chat.svg"
         },
         "emote_only": {
             "label": "Emote Only",
             "description": "Toggle emote-only chat",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/emote.svg"
         },
         "follower_only": {
             "label": "Follower Only",
             "description": "Toggle follower-only chat",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/follower.svg"
         },
         "sub_only": {
             "label": "Subscriber Only",
             "description": "Toggle subscriber-only chat",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/sub_only.svg"
         },
         "slow_mode": {
             "label": "Slow Mode",
             "description": "Toggle slow mode chat",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/slow.svg"
         },
         "ad_break": {
             "label": "Ad Break",
             "description": "Run an advertisement for a preset length",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/ad.svg"
         },
         "marker": {
             "label": "Marker",
             "description": "Add a stream marker to highlight key moments",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/pin.svg"
         },
         "viewer_count": {
             "label": "Viewer Count",
             "description": "Display the number of viewers watching your live video",
-            "display": "displays/viewCount.display.html"
+            "display": "displays/viewCount.display.html",
+            "icon": "images/viewers.svg"
         },
         "create_clip": {
             "label": "Create Clip",
             "description": "Create a clip of the previous 90 seconds",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/clip.svg"
         },
         "open_clip": {
             "label": "Open Clip",
             "description": "Open your channel's most recent clip",
-            "inspector": "ui/index.html"
+            "inspector": "ui/index.html",
+            "icon": "images/clip.svg"
         }
     }
 }
