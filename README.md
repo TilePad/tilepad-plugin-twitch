@@ -24,7 +24,4 @@ x
 
 Todo:
 
-- [x] Ad Break
-- [x] Marker
-    - [ ] Marker Description
 - [ ] Open clip

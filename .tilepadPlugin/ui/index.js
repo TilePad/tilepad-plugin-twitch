@@ -51,6 +51,24 @@ tilepad.tile.onProperties((properties) => {
     messageIn.removeAttribute("disabled");
 });
 
+// === Marker Screen ===
+
+const markerDescriptionIn = document.getElementById("markerDescription");
+
+markerDescriptionIn.onchange = (event) => {
+    const value = event.target.value;
+    tilepad.tile.setProperty("description", value);
+};
+
+markerDescriptionIn.setAttribute("disabled", "");
+
+tilepad.tile.onProperties((properties) => {
+    if (currentAction !== "marker") return;
+
+    markerDescriptionIn.value = properties.description ?? "";
+    markerDescriptionIn.removeAttribute("disabled");
+});
+
 // === Ad Break Screen ===
 
 const lengthSelect = document.getElementById("length");
@@ -111,6 +129,11 @@ tilepad.plugin.onMessage((data) => {
 
                         case "ad_break": {
                             setActiveScreen("adBreakScreen");
+                            break;
+                        }
+
+                        case "marker": {
+                            setActiveScreen("markerScreen");
                             break;
                         }
 
