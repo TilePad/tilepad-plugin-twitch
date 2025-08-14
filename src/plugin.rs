@@ -41,22 +41,22 @@ struct StoredAccess {
 }
 
 #[derive(Default)]
-pub struct ExamplePlugin {
+pub struct TwitchPlugin {
     state: Rc<State>,
 }
 
-impl ExamplePlugin {
+impl TwitchPlugin {
     pub fn new() -> Self {
         Default::default()
     }
 }
 
-impl Plugin for ExamplePlugin {
+impl Plugin for TwitchPlugin {
     fn on_registered(&mut self, _session: &PluginSessionHandle) {
         spawn_local(run_view_count_update(self.state.clone()));
     }
 
-    fn on_properties(&mut self, _session: &PluginSessionHandle, properties: serde_json::Value) {
+    fn on_properties(&mut self, session: &PluginSessionHandle, properties: serde_json::Value) {
         let state = self.state.clone();
         let properties: Properties = match serde_json::from_value(properties) {
             Ok(value) => value,
@@ -68,12 +68,14 @@ impl Plugin for ExamplePlugin {
 
         state.set_logged_out();
 
+        let session = session.clone();
+
         // Try and authenticate
         spawn_local(async move {
             if let Some(stored) = properties.access {
                 if let Err(error) = state.attempt_auth(stored.access_token).await {
-                    // TODO: If token is bad delete and force re-login
                     tracing::error!(?error, "auth attempt failed");
+                    _ = session.set_properties(Properties { access: None });
                 }
             }
         });

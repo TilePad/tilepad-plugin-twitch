@@ -1,4 +1,4 @@
-use plugin::ExamplePlugin;
+use plugin::TwitchPlugin;
 use tilepad_plugin_sdk::{setup_tracing, start_plugin};
 use tokio::task::LocalSet;
 
@@ -13,7 +13,7 @@ async fn main() {
     setup_tracing();
 
     let local_set = LocalSet::new();
-    let plugin = ExamplePlugin::new();
+    let plugin = TwitchPlugin::new();
 
     local_set.run_until(start_plugin(plugin)).await;
 }
