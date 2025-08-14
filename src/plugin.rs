@@ -90,7 +90,7 @@ impl Plugin for ExamplePlugin {
     fn on_inspector_message(
         &mut self,
         session: &PluginSessionHandle,
-        inspector: Inspector,
+        _inspector: Inspector,
         message: serde_json::Value,
     ) {
         let message: InspectorMessageIn = match serde_json::from_value(message) {
@@ -123,7 +123,7 @@ impl Plugin for ExamplePlugin {
 
     fn on_display_message(
         &mut self,
-        session: &PluginSessionHandle,
+        _session: &PluginSessionHandle,
         display: tilepad_plugin_sdk::Display,
         message: serde_json::Value,
     ) {
@@ -212,7 +212,20 @@ impl Plugin for ExamplePlugin {
                     }
                 });
             }
-            Action::AdBreak => {}
+            Action::AdBreak(properties) => {
+                spawn_local(async move {
+                    if let Err(error) = state
+                        .start_comercial(
+                            properties
+                                .length
+                                .unwrap_or(twitch_api::types::CommercialLength::Length30),
+                        )
+                        .await
+                    {
+                        tracing::error!(?error, "failed to create marker");
+                    }
+                });
+            }
             Action::Marker(properties) => {
                 spawn_local(async move {
                     if let Err(error) = state
@@ -260,19 +273,22 @@ impl Plugin for ExamplePlugin {
             .map(|scope| Scope::parse(scope.to_string()))
             .collect();
 
-        _ = session.set_properties(Properties {
-            access: Some(StoredAccess {
-                access_token: access_token.clone(),
-                scopes,
-            }),
-        });
-
         // Try authenticates
+        let session = session.clone();
         let state = self.state.clone();
         spawn_local(async move {
-            if let Err(err) = state.attempt_auth(access_token).await {
-                // TODO: If token is bad delete and force re-login
+            if let Err(error) = state.attempt_auth(access_token.clone()).await {
+                tracing::error!(?error, "failed to authenticate");
+                return;
             }
+
+            // Store authentication credentials
+            _ = session.set_properties(Properties {
+                access: Some(StoredAccess {
+                    access_token,
+                    scopes,
+                }),
+            });
         });
     }
 }

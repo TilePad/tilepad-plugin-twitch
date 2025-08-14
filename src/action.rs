@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use twitch_api::types::CommercialLength;
 
 pub enum Action {
     SendMessage(SendMessageProperties),
@@ -7,7 +8,7 @@ pub enum Action {
     FollowerOnly,
     SubOnly,
     SlowMode,
-    AdBreak,
+    AdBreak(AdBreakProperties),
     Marker(MarkerProperties),
     CreateClip,
     OpenClip,
@@ -26,7 +27,7 @@ impl Action {
             "follower_only" => Ok(Action::FollowerOnly),
             "sub_only" => Ok(Action::SubOnly),
             "slow_mode" => Ok(Action::SlowMode),
-            "ad_break" => Ok(Action::AdBreak),
+            "ad_break" => serde_json::from_value(properties).map(Action::AdBreak),
             "marker" => serde_json::from_value(properties).map(Action::Marker),
             "create_clip" => Ok(Action::CreateClip),
             "open_clip" => Ok(Action::OpenClip),
@@ -44,4 +45,10 @@ pub struct SendMessageProperties {
 #[derive(Deserialize)]
 pub struct MarkerProperties {
     pub description: Option<String>,
+}
+
+#[derive(Deserialize)]
+pub struct AdBreakProperties {
+    // 1-180s duration of the ad
+    pub length: Option<CommercialLength>,
 }

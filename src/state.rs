@@ -13,6 +13,7 @@ use twitch_api::{
     HelixClient,
     helix::{
         EmptyBody, Request, RequestPost, Scope,
+        channels::{StartCommercial, StartCommercialBody, StartCommercialRequest},
         chat::{
             ChatSettings, GetChatSettingsRequest, SendChatMessageBody, SendChatMessageRequest,
             SendChatMessageResponse, UpdateChatSettingsBody, UpdateChatSettingsRequest,
@@ -25,6 +26,7 @@ use twitch_api::{
         },
     },
     twitch_oauth2::{AccessToken, UserToken, Validator, validator},
+    types::CommercialLength,
 };
 
 use crate::messages::InspectorMessageOut;
@@ -192,6 +194,23 @@ impl State {
         let request = CreateStreamMarkerRequest::new();
         let body = CreateStreamMarkerBody::new(user_id, description);
         let response: CreatedStreamMarker = self
+            .helix_client
+            .req_post(request, body, &token)
+            .await?
+            .data;
+
+        Ok(response)
+    }
+
+    pub async fn start_comercial(
+        &self,
+        length: CommercialLength,
+    ) -> anyhow::Result<Vec<StartCommercial>> {
+        let token = self.get_user_token().context("not authenticated")?;
+        let user_id = token.user_id.clone();
+        let request = StartCommercialRequest::new();
+        let body = StartCommercialBody::new(user_id, length);
+        let response = self
             .helix_client
             .req_post(request, body, &token)
             .await?
