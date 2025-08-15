@@ -147,7 +147,7 @@ impl Plugin for TwitchPlugin {
 
     fn on_tile_clicked(
         &mut self,
-        _session: &PluginSessionHandle,
+        session: &PluginSessionHandle,
         ctx: TileInteractionContext,
         properties: serde_json::Value,
     ) {
@@ -166,6 +166,47 @@ impl Plugin for TwitchPlugin {
 
         let state = self.state.clone();
 
+        let success_indicator = {
+            let session = session.clone();
+
+            move || {
+                _ = session.display_indicator(
+                    ctx.device_id,
+                    ctx.tile_id,
+                    tilepad_plugin_sdk::DeviceIndicator::Success,
+                    1000,
+                );
+            }
+        };
+
+        let loading_indicator = {
+            let session = session.clone();
+
+            move || {
+                _ = session.display_indicator(
+                    ctx.device_id,
+                    ctx.tile_id,
+                    tilepad_plugin_sdk::DeviceIndicator::Loading,
+                    1000,
+                );
+            }
+        };
+
+        let error_indicator = {
+            let session = session.clone();
+
+            move || {
+                _ = session.display_indicator(
+                    ctx.device_id,
+                    ctx.tile_id,
+                    tilepad_plugin_sdk::DeviceIndicator::Error,
+                    2500,
+                );
+            }
+        };
+
+        loading_indicator();
+
         match action {
             Action::SendMessage(properties) => {
                 spawn_local(async move {
@@ -176,6 +217,9 @@ impl Plugin for TwitchPlugin {
 
                     if let Err(error) = state.send_chat_message(&message).await {
                         tracing::error!(?error, "failed to send chat message");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -183,6 +227,9 @@ impl Plugin for TwitchPlugin {
                 spawn_local(async move {
                     if let Err(error) = state.clear_chat().await {
                         tracing::error!(?error, "failed to clear chat");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -190,6 +237,9 @@ impl Plugin for TwitchPlugin {
                 spawn_local(async move {
                     if let Err(error) = state.toggle_emote_only().await {
                         tracing::error!(?error, "failed to toggle emote only chat");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -197,6 +247,9 @@ impl Plugin for TwitchPlugin {
                 spawn_local(async move {
                     if let Err(error) = state.toggle_follower_only().await {
                         tracing::error!(?error, "failed to toggle follower only chat");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -204,6 +257,9 @@ impl Plugin for TwitchPlugin {
                 spawn_local(async move {
                     if let Err(error) = state.toggle_sub_only().await {
                         tracing::error!(?error, "failed to toggle sub only chat");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -211,6 +267,9 @@ impl Plugin for TwitchPlugin {
                 spawn_local(async move {
                     if let Err(error) = state.toggle_slow_mode().await {
                         tracing::error!(?error, "failed to toggle slow mode");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -225,6 +284,9 @@ impl Plugin for TwitchPlugin {
                         .await
                     {
                         tracing::error!(?error, "failed to create marker");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -235,6 +297,9 @@ impl Plugin for TwitchPlugin {
                         .await
                     {
                         tracing::error!(?error, "failed to create marker");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
@@ -242,6 +307,9 @@ impl Plugin for TwitchPlugin {
                 spawn_local(async move {
                     if let Err(error) = state.create_clip().await {
                         tracing::error!(?error, "failed to create clip");
+                        error_indicator();
+                    } else {
+                        success_indicator();
                     }
                 });
             }
