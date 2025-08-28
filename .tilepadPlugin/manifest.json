@@ -1,12 +1,12 @@
 {
+    "$schema": "https://tilepad.pages.dev/schemas/0.9.0/plugins.json",
     "plugin": {
         "id": "com.jacobtread.tilepad.twitch",
         "name": "Twitch",
         "version": "0.0.1",
-        "authors": [
-            "Jacobtread"
-        ],
-        "description": "TilePad Twitch plugin"
+        "authors": ["Jacobtread"],
+        "description": "TilePad Twitch plugin",
+        "icon": "images/twitch-logo.png"
     },
     "category": {
         "label": "Twitch",
